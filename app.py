@@ -22,6 +22,10 @@ class Laptop(db.Model):
                            cascade='all, delete-orphan'
     )
 
+
+with app.app_context():
+    db.create_all()
+
 class StatusLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     laptop_id = db.Column(db.Integer, db.ForeignKey('laptop.id'), nullable=False)
@@ -81,7 +85,5 @@ def delete_laptop(laptop_id):
     return redirect(url_for('laptops'))
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
     app.run(debug=True)
 
