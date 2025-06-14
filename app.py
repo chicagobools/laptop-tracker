@@ -80,30 +80,8 @@ def delete_laptop(laptop_id):
     db.session.commit()
     return redirect(url_for('laptops'))
 
-
-'''
-@app.route('/laptops', methods=['GET', 'POST'])
-def laptops():
-    if request.method == 'POST':
-        new_laptop = Laptop(
-            barcode=request.form['barcode'],
-            model=request.form['model'],
-            status=request.form['status'],
-            notes=request.form['notes'][:40]
-        )
-        db.session.add(new_laptop)
-        db.session.commit()
-        return redirect(url_for('laptops'))
-
-    query = request.args.get('search', '').strip()
-    if query:
-        laptops = Laptop.query.filter(Laptop.barcode.ilike(f"%{query}%")).all()
-    else:
-        laptops = Laptop.query.all()
-        
-    return render_template('laptops.html', laptops=laptops, query=query)
-''' 
-    
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)
 
