@@ -23,15 +23,16 @@ class Laptop(db.Model):
     )
 
 
-with app.app_context():
-    db.create_all()
-
 class StatusLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     laptop_id = db.Column(db.Integer, db.ForeignKey('laptop.id'), nullable=False)
     old_status = db.Column(db.String(50), nullable=False)
     new_status = db.Column(db.String(50), nullable=False)
     timestamp = db.Column(db.DateTime, server_default=db.func.now())
+
+@app.before_first_request
+def create_tables():
+    db.create_all()
 
 @app.route('/update_status/<int:laptop_id>', methods=['POST'])
 def update_status(laptop_id):
