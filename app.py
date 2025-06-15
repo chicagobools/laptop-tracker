@@ -1,7 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, flash, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', 'dev')
 
 # SQLite DB config
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///laptops.db'
@@ -55,28 +60,32 @@ def home():
 
 @app.route('/laptops', methods=['GET', 'POST'])
 def laptops():
+    query = request.args.get('search', '')
+    laptops = Laptop.query.filter(Laptop.barcode.contains(query)).all()
+
     if request.method == 'POST':
+        barcode = request.form['barcode']
+        model = request.form['model']
+        status = request.form['status']
+        notes = request.form['notes'][:40]
+
+        existing = Laptop.query.filter_by(barcode=barcode).first()
+        if existing:
+            flash("That barcode already exists.")
+            return redirect(url_for("laptops"))
+
         new_laptop = Laptop(
-            barcode=request.form['barcode'],
-            model=request.form['model'],
-            status=request.form['status'],
-            notes=request.form['notes'][:40]
+            barcode=barcode,
+            model=model,
+            status=status,
+            notes=notes
         )
+
         db.session.add(new_laptop)
         db.session.commit()
-        return redirect(url_for('laptops'))
+        return redirect(url_for("laptops"))
 
-    query = request.args.get('search', '').strip()
-
-    if query:
-        laptops = Laptop.query.filter(Laptop.barcode.ilike(f"%{query}%")).all()
-    else:
-        laptops = Laptop.query.all()
-                    
     return render_template('laptops.html', laptops=laptops, query=query, StatusLog=StatusLog)
-
-    #laptops = Laptop.query.all()
-    #return render_template('laptops.html', laptops=laptops)
 
 @app.route('/delete/<int:laptop_id>', methods=['POST'])
 def delete_laptop(laptop_id):
