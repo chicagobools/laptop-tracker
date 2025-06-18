@@ -21,9 +21,9 @@ db = SQLAlchemy(app)
 # Laptop model
 class Laptop(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    barcode = db.Column(db.String(100), unique=True, nullable=False)
-    model = db.Column(db.String(100), nullable=False)
-    status = db.Column(db.String(50), nullable=False, default='Library')
+    barcode = db.Column(db.String(40), unique=True, nullable=False)
+    model = db.Column(db.String(40), nullable=False)
+    status = db.Column(db.String(40), nullable=False, default='Library')
     notes = db.Column(db.String(40), nullable=True)
     logs = db.relationship('StatusLog',
                            backref='laptop',
@@ -35,8 +35,8 @@ class Laptop(db.Model):
 class StatusLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     laptop_id = db.Column(db.Integer, db.ForeignKey('laptop.id'), nullable=False)
-    old_status = db.Column(db.String(50), nullable=False)
-    new_status = db.Column(db.String(50), nullable=False)
+    old_status = db.Column(db.String(40), nullable=False)
+    new_status = db.Column(db.String(40), nullable=False)
     timestamp = db.Column(db.DateTime, server_default=db.func.now())
 
 @app.before_first_request
@@ -72,6 +72,13 @@ def laptops():
         model = request.form['model']
         status = request.form['status']
         notes = request.form['notes'][:40]
+
+
+
+        # Server-side length validation
+        if any([len(field) > 40 for field in [barcode, model, status, notes]]):
+            flash("One or more fields exceed their allowed character limits.")
+            return redirect(url_for("laptops"))
 
         existing = Laptop.query.filter_by(barcode=barcode).first()
         if existing:
