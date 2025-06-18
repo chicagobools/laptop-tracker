@@ -24,7 +24,7 @@ class Laptop(db.Model):
     barcode = db.Column(db.String(100), unique=True, nullable=False)
     model = db.Column(db.String(100), nullable=False)
     status = db.Column(db.String(50), nullable=False, default='Library')
-    notes = db.Column(db.String(4), nullable=True)
+    notes = db.Column(db.String(40), nullable=True)
     logs = db.relationship('StatusLog',
                            backref='laptop',
                            lazy=True,
