@@ -65,7 +65,7 @@ def home():
 @app.route('/laptops', methods=['GET', 'POST'])
 def laptops():
     query = request.args.get('search', '')
-    laptops = Laptop.query.filter(Laptop.barcode.contains(query)).all()
+    laptops = Laptop.query.filter(Laptop.barcode.contains(query)).order_by(Laptop.id).all()
 
     if request.method == 'POST':
         barcode = request.form['barcode']
