@@ -9,8 +9,12 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev')
 
 # SQLite DB config
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///laptops.db'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///laptops.db'
+
+# PostgreSQL
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 
 db = SQLAlchemy(app)
 
